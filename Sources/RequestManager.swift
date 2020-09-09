@@ -47,8 +47,10 @@ public struct RequestManager {
         let request = repository.createRequest()
         
         guard let url = URL(string: "\(repository.domain.domain())\(request.path)") else {
-            profiler?.debug("Invalid URL")
-            completion(.failure(.request(description: "Invalid URL")))
+            let description = "Invalid URL"
+            
+            profiler?.debug(description)
+            completion(.failure(.request(description: description)))
             
             return nil
         }
