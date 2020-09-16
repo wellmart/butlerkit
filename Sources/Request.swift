@@ -28,22 +28,18 @@ public struct Request {
     let method: RequestMethod
     let path: String
     
-    @inlinable
     public static func get(_ path: RequestPath) -> Request {
         return Request(method: .get, path: path.path)
     }
     
-    @inlinable
     public static func post(_ path: RequestPath) -> Request {
         return Request(method: .post, path: path.path)
     }
     
-    @inlinable
     public static func put(_ path: RequestPath) -> Request {
         return Request(method: .put, path: path.path)
     }
     
-    @inlinable
     public static func delete(_ path: RequestPath) -> Request {
         return Request(method: .delete, path: path.path)
     }

@@ -22,40 +22,26 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+import SystemConfiguration
 
-public struct RequestPath {
-    let path: String
-}
-
-extension RequestPath: ExpressibleByStringLiteral {
-    public init(stringLiteral value: String) {
-        self.path = value
-    }
-}
-
-extension RequestPath: ExpressibleByStringInterpolation {
-    public struct StringInterpolation: StringInterpolationProtocol {
-        var path: String
+public enum Reachability {
+    public static func isConnected() -> Bool {
+        var addr = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
+        var flags = SCNetworkReachabilityFlags(rawValue: 0)
         
-        public init(literalCapacity: Int, interpolationCount: Int) {
-            self.path = String(reserveCapacity: literalCapacity)
-        }
+        addr.sin_family = sa_family_t(AF_INET)
+        addr.sin_len = UInt8(MemoryLayout.size(ofValue: addr))
         
-        public mutating func appendLiteral(_ literal: String) {
-            path.append(literal)
-        }
-        
-        public mutating func appendInterpolation<T: CustomStringConvertible>(_ value: T?) {
-            guard let value = value?.description.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-                return
+        let target = withUnsafePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { address in
+                SCNetworkReachabilityCreateWithAddress(nil, address)
             }
-            
-            path.append(value)
         }
-    }
-    
-    public init(stringInterpolation interpolation: StringInterpolation) {
-        self.path = interpolation.path
+        
+        guard SCNetworkReachabilityGetFlags(target.unsafelyUnwrapped, &flags) else {
+            return false
+        }
+        
+        return flags == .reachable && flags != .connectionRequired
     }
 }
