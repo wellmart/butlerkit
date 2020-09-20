@@ -63,7 +63,7 @@ public struct RequestManager {
                     return
                 }
                 catch let error {
-                    self.profiler?.debug("Decoding Failure: \(error.localizedDescription)")
+                    profiler?.debug("Decoding Failure: \(error.localizedDescription)")
                     completion(.failure(.decoding(description: error.localizedDescription)))
                 }
                 
@@ -86,12 +86,12 @@ public struct RequestManager {
             guard let response = response as? HTTPURLResponse, let data = data else {
                 if let error = error as NSError? {
                     if error.code != NSURLErrorCancelled {
-                        self.profiler?.debug("Request Failure: \(error.localizedDescription)")
+                        profiler?.debug("Request Failure: \(error.localizedDescription)")
                         completion(.failure(.request(description: error.localizedDescription)))
                     }
                 }
                 else {
-                    self.profiler?.debug("No Response")
+                    profiler?.debug("No Response")
                     completion(.failure(.noResponse))
                 }
                 
@@ -99,7 +99,7 @@ public struct RequestManager {
             }
             
             if response.statusCode < 200 && response.statusCode > 299 {
-                self.profiler?.debug("Server Error: \(response.statusCode)")
+                profiler?.debug("Server Error: \(response.statusCode)")
                 completion(.failure(.serverError(code: response.statusCode)))
                 
                 return
