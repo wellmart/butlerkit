@@ -44,7 +44,6 @@ public struct Request {
         return Request(method: .delete, path: path.path)
     }
     
-    @usableFromInline
     init(method: RequestMethod, path: String) {
         self.method = method
         self.path = path
