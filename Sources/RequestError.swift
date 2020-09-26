@@ -25,8 +25,8 @@
 import Foundation
 
 public enum RequestError: Error {
-    case decoding(description: String)
-    case request(description: String)
-    case serverError(code: Int)
     case noResponse
+    case decoding(description: String)
+    case serverError(code: Int)
+    case request(description: String)
 }
