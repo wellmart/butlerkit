@@ -75,8 +75,8 @@ public struct RequestManager {
     
     func perform(url: URL, method: RequestMethod = .get, _ completion: @escaping (RequestResult<Data>) -> Void) -> RequestTask? {
         let session = URLSession(configuration: URLSessionConfiguration.default.apply {
-            $0.timeoutIntervalForRequest = 15
-            $0.timeoutIntervalForResource = 15
+            $0.timeoutIntervalForRequest = 30
+            $0.timeoutIntervalForResource = 30
         })
         
         var request = URLRequest(url: url)
