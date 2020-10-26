@@ -29,7 +29,7 @@ import PackageDescription
 let package = Package(
     name: "ButlerKit",
     platforms: [
-        .macOS(.v10_12), .iOS(.v10)
+        .macOS(.v10_13), .iOS(.v11)
     ],
     products: [
         .library(
