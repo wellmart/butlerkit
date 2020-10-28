@@ -27,18 +27,18 @@ import Adrenaline
 
 public struct RequestManager {
     public static let `default` = RequestManager()
-    private var profiler: ProfilerProtocol?
+    private var log: Log?
     
     private init() {
     }
     
-    public mutating func enableProfiler() {
-        profiler = createProfilerIfSupported(category: "Request Manager")
+    public mutating func enableLog() {
+        log = Log(category: "Request Manager")
     }
     
     @discardableResult
     public func perform<T: Codable>(_ repository: Repository, _ completion: @escaping (RequestResult<T>) -> Void) -> RequestTask? {
-        let tracing = profiler?.begin(name: "Perform")
+        let tracing = log?.begin(name: "Perform")
         
         defer {
             tracing?.end()
@@ -49,7 +49,7 @@ public struct RequestManager {
         guard let url = URL(string: "\(repository.domain.domain())\(request.path)") else {
             let description = "Invalid URL"
             
-            profiler?.debug(description)
+            log?.debug(description)
             completion(.failure(.request(description: description)))
             
             return nil
@@ -63,7 +63,7 @@ public struct RequestManager {
                     return
                 }
                 catch let error {
-                    profiler?.debug("Decoding Failure: \(error.localizedDescription)")
+                    log?.debug("Decoding Failure: \(error.localizedDescription)")
                     completion(.failure(.decoding(description: error.localizedDescription)))
                 }
                 
@@ -86,12 +86,12 @@ public struct RequestManager {
             guard let response = response as? HTTPURLResponse, let data = data else {
                 if let error = error as NSError? {
                     if error.code != NSURLErrorCancelled {
-                        profiler?.debug("Request Failure: \(error.localizedDescription)")
+                        log?.debug("Request Failure: \(error.localizedDescription)")
                         completion(.failure(.request(description: error.localizedDescription)))
                     }
                 }
                 else {
-                    profiler?.debug("No Response")
+                    log?.debug("No Response")
                     completion(.failure(.noResponse))
                 }
                 
@@ -99,7 +99,7 @@ public struct RequestManager {
             }
             
             if response.statusCode < 200 && response.statusCode > 299 {
-                profiler?.debug("Server Error: \(response.statusCode)")
+                log?.debug("Server Error: \(response.statusCode)")
                 completion(.failure(.serverError(code: response.statusCode)))
                 
                 return
