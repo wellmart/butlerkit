@@ -27,32 +27,17 @@ import Adrenaline
 
 public struct RequestManager {
     public static let `default` = RequestManager()
-    private var log: Log?
+    private var log = Log(category: "Request Manager")
     
     private init() {
     }
     
-    public mutating func enableLog() {
-        log = Log(category: "Request Manager")
-    }
-    
     @discardableResult
     public func perform<T: Codable>(_ repository: Repository, _ completion: @escaping (RequestResult<T>) -> Void) -> RequestTask? {
-        let tracing = log?.begin(name: "Perform")
-        
-        defer {
-            tracing?.end()
-        }
-        
         let request = repository.createRequest()
         
         guard let url = URL(string: "\(repository.domain.domain())\(request.path)") else {
-            let description = "Invalid URL"
-            
-            log?.debug(description)
-            completion(.failure(.request(description: description)))
-            
-            return nil
+            preconditionFailure("Invalid URL")
         }
         
         return perform(url: url, method: request.method) { result in
@@ -63,8 +48,10 @@ public struct RequestManager {
                     return
                 }
                 catch let error {
-                    log?.debug("Decoding Failure: \(error.localizedDescription)")
-                    completion(.failure(.decoding(description: error.localizedDescription)))
+                    let description = (error as CustomStringConvertible).description
+                    
+                    log.debug("Decoding Failure: %@", description)
+                    completion(.failure(.trace(.decoding(description: description))))
                 }
                 
             case let .failure(error):
@@ -74,6 +61,8 @@ public struct RequestManager {
     }
     
     func perform(url: URL, method: RequestMethod = .get, _ completion: @escaping (RequestResult<Data>) -> Void) -> RequestTask? {
+        log.debug("Perform: <%@> %@", method.rawValue, url.description)
+        
         let session = URLSession(configuration: URLSessionConfiguration.default.apply {
             $0.timeoutIntervalForRequest = 30
             $0.timeoutIntervalForResource = 30
@@ -86,12 +75,14 @@ public struct RequestManager {
             guard let response = response as? HTTPURLResponse, let data = data else {
                 if let error = error as NSError? {
                     if error.code != NSURLErrorCancelled {
-                        log?.debug("Request Failure: \(error.localizedDescription)")
-                        completion(.failure(.request(description: error.localizedDescription)))
+                        let description = (error as CustomStringConvertible).description
+                        
+                        log.debug("Request Failure: %@", description)
+                        completion(.failure(.trace(.request(description: description))))
                     }
                 }
                 else {
-                    log?.debug("No Response")
+                    log.debug("No Response")
                     completion(.failure(.noResponse))
                 }
                 
@@ -99,8 +90,8 @@ public struct RequestManager {
             }
             
             if response.statusCode < 200 && response.statusCode > 299 {
-                log?.debug("Server Error: \(response.statusCode)")
-                completion(.failure(.serverError(code: response.statusCode)))
+                log.debug("Server Error: %@", response.statusCode)
+                completion(.failure(.trace(.serverError(code: response.statusCode))))
                 
                 return
             }
