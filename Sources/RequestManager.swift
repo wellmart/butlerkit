@@ -27,7 +27,7 @@ import Adrenaline
 
 public struct RequestManager {
     public static let `default` = RequestManager()
-    private var log = Log(category: "Request Manager")
+    private let log = Log(category: "Request Manager")
     
     private init() {
     }
