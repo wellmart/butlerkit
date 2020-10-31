@@ -51,7 +51,7 @@ public struct RequestManager {
                     let description = (error as CustomStringConvertible).description
                     
                     log.debug("Decoding Failure: %@", description)
-                    completion(.failure(.trace(.decoding(description: description))))
+                    completion(.failure(.firstChance(.decoding(description: description))))
                 }
                 
             case let .failure(error):
@@ -78,7 +78,7 @@ public struct RequestManager {
                         let description = (error as CustomStringConvertible).description
                         
                         log.debug("Request Failure: %@", description)
-                        completion(.failure(.trace(.request(description: description))))
+                        completion(.failure(.firstChance(.request(description: description))))
                     }
                 }
                 else {
@@ -91,7 +91,7 @@ public struct RequestManager {
             
             if response.statusCode < 200 && response.statusCode > 299 {
                 log.debug("Server Error: %@", response.statusCode)
-                completion(.failure(.trace(.serverError(code: response.statusCode))))
+                completion(.failure(.firstChance(.serverError(code: response.statusCode))))
                 
                 return
             }
