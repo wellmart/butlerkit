@@ -50,7 +50,7 @@ public struct RequestManager {
                 catch let error {
                     let description = (error as CustomStringConvertible).description
                     
-                    log.debug("Decoding Failure: %@", description)
+                    log.debug("🔶 DECODING FAILURE: %@", description)
                     completion(.failure(.firstChance(.decoding(description: description))))
                 }
                 
@@ -61,7 +61,7 @@ public struct RequestManager {
     }
     
     func perform(url: URL, method: RequestMethod = .get, _ completion: @escaping (RequestResult<Data>) -> Void) -> RequestTask? {
-        log.debug("Perform: <%@> %@", method.rawValue, url.description)
+        log.debug("Perform: %@ %@", method.rawValue, url.description)
         
         let session = URLSession(configuration: URLSessionConfiguration.default.apply {
             $0.timeoutIntervalForRequest = 30
@@ -77,7 +77,7 @@ public struct RequestManager {
                     if error.code != NSURLErrorCancelled {
                         let description = (error as CustomStringConvertible).description
                         
-                        log.debug("Request Failure: %@", description)
+                        log.debug("🔶 REQUEST FAILURE: %@", description)
                         completion(.failure(.firstChance(.request(description: description))))
                     }
                 }
@@ -90,7 +90,7 @@ public struct RequestManager {
             }
             
             if response.statusCode < 200 && response.statusCode > 299 {
-                log.debug("Server Error: %@", response.statusCode)
+                log.debug("🔶 SERVER ERROR: %@", response.statusCode)
                 completion(.failure(.firstChance(.serverError(code: response.statusCode))))
                 
                 return
