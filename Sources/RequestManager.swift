@@ -82,7 +82,7 @@ public struct RequestManager {
                     }
                 }
                 else {
-                    log.debug("No Response")
+                    log.debug("No response")
                     completion(.failure(.noResponse))
                 }
                 
