@@ -26,19 +26,21 @@ import SystemConfiguration
 
 public enum Reachability {
     public static func isConnected() -> Bool {
-        var addr = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
+        var addr = sockaddr_in()
         var flags = SCNetworkReachabilityFlags(rawValue: 0)
         
         addr.sin_family = sa_family_t(AF_INET)
-        addr.sin_len = UInt8(MemoryLayout.size(ofValue: addr))
+        addr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
         
-        let target = withUnsafePointer(to: &addr) {
+        guard let target = withUnsafePointer(to: &addr, {
             $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { address in
                 SCNetworkReachabilityCreateWithAddress(nil, address)
             }
+        }) else {
+            return false
         }
         
-        guard SCNetworkReachabilityGetFlags(target.unsafelyUnwrapped, &flags) else {
+        guard SCNetworkReachabilityGetFlags(target, &flags) else {
             return false
         }
         
