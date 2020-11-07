@@ -27,9 +27,17 @@ import Adrenaline
 
 public struct RequestManager {
     public static let `default` = RequestManager()
+    
     private let log = Log(category: "Request Manager")
+    private var urlSession: URLSession!
     
     private init() {
+        let configuration = URLSessionConfiguration.ephemeral.apply {
+            $0.timeoutIntervalForRequest = 30
+            $0.timeoutIntervalForResource = 30
+        }
+        
+        self.urlSession = URLSession(configuration: configuration)
     }
     
     @discardableResult
@@ -63,15 +71,10 @@ public struct RequestManager {
     func perform(url: URL, method: RequestMethod = .get, _ completion: @escaping (RequestResult<Data>) -> Void) -> RequestTask? {
         log.debug("Perform: %@ %@", method.rawValue, url.description)
         
-        let session = URLSession(configuration: URLSessionConfiguration.default.apply {
-            $0.timeoutIntervalForRequest = 30
-            $0.timeoutIntervalForResource = 30
-        })
-        
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         
-        let task = session.dataTask(with: request) { data, response, error in
+        let task = urlSession.dataTask(with: request) { data, response, error in
             guard let response = response as? HTTPURLResponse, let data = data else {
                 if let error = error as NSError? {
                     if error.code != NSURLErrorCancelled {
