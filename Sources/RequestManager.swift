@@ -37,6 +37,10 @@ public struct RequestManager {
             $0.timeoutIntervalForResource = 30
         }
         
+        #if canImport(UIKit)
+        configuration.httpAdditionalHeaders = ["User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3"]
+        #endif
+        
         self.urlSession = URLSession(configuration: configuration)
     }
     
