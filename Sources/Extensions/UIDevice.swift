@@ -26,7 +26,6 @@
 import UIKit
 
 public extension UIDevice {
-    @inlinable
     var userAgent: String {
         return "Mozilla/5.0 (\(model); CPU iPhone OS \(systemVersion.replacingOccurrences(of: ".", with: "_")) like Mac OS X)"
     }

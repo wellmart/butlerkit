@@ -25,6 +25,10 @@
 import Foundation
 import Adrenaline
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 public struct RequestManager {
     public static let `default` = RequestManager()
     
@@ -38,7 +42,7 @@ public struct RequestManager {
         }
         
         #if canImport(UIKit)
-        configuration.httpAdditionalHeaders = ["User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3"]
+        configuration.httpAdditionalHeaders = ["User-Agent": UIDevice.current.userAgent]
         #endif
         
         self.urlSession = URLSession(configuration: configuration)
