@@ -83,7 +83,8 @@ public struct RequestManager {
         request.httpMethod = method.rawValue
         
         let task = urlSession.dataTask(with: request) { data, response, error in
-            guard let response = response as? HTTPURLResponse, let data = data else {
+            guard let data = data,
+                  let response = response as? HTTPURLResponse else {
                 if let error = error as NSError? {
                     if error.code != NSURLErrorCancelled {
                         let description = (error as CustomStringConvertible).description
