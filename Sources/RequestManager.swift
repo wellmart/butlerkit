@@ -82,6 +82,10 @@ public struct RequestManager {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         
+        #if DEBUG
+        log?.debug("-------> %@", request.curlString())
+        #endif
+        
         let task = urlSession.dataTask(with: request) { data, response, error in
             guard let data = data,
                   let response = response as? HTTPURLResponse else {
