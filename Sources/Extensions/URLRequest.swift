@@ -26,7 +26,7 @@ import Foundation
 
 #if DEBUG
 extension URLRequest {
-    func curlString() -> String {
+    func stringCurl() -> String {
         var curl = "curl --insecure"
         
         if let method = httpMethod {

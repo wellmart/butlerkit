@@ -83,7 +83,7 @@ public struct RequestManager {
         request.httpMethod = method.rawValue
         
         #if DEBUG
-        log?.debug("-------> %@", request.curlString())
+        log?.debug("-------> %@", request.stringCurl())
         #endif
         
         let task = urlSession.dataTask(with: request) { data, response, error in
