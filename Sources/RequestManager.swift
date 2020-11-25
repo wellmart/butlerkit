@@ -52,7 +52,7 @@ public final class RequestManager {
     }
     
     @discardableResult
-    public func perform<T: Codable>(_ repository: Repository, _ completion: @escaping (RequestResult<T>) -> Void) -> RequestTask? {
+    public func perform<T: Decodable>(_ repository: Repository, _ completion: @escaping (RequestResult<T>) -> Void) -> RequestTask? {
         let request = repository.createRequest()
         
         guard let url = URL(string: "https://\(repository.domain.rawValue)\(request.path)") else {
