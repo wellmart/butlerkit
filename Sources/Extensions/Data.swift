@@ -26,7 +26,7 @@ import Foundation
 
 extension Data {
     @inlinable
-    func decodeJson<T: Codable>() throws -> T {
+    func decodeJson<T: Decodable>() throws -> T {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         

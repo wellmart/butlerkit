@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum RequestResult<T: Codable> {
+public enum RequestResult<T: Decodable> {
     case failure(RequestError)
     case success(T)
 }
