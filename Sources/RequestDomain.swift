@@ -25,5 +25,5 @@
 import Foundation
 
 public protocol RequestDomain {
-    func domain() -> String
+    var rawValue: String { get }
 }

@@ -29,13 +29,16 @@ import Adrenaline
 import UIKit
 #endif
 
-public struct RequestManager {
+public final class RequestManager {
     public static let `default` = RequestManager()
     
     private let log = Log(category: "Request Manager")
-    private var urlSession: URLSession!
+    private var urlSession: URLSession?
     
     private init() {
+    }
+    
+    public func prepare(delegate: URLSessionDelegate? = nil) {
         let configuration = URLSessionConfiguration.ephemeral.apply {
             $0.timeoutIntervalForRequest = 30
             $0.timeoutIntervalForResource = 30
@@ -45,18 +48,18 @@ public struct RequestManager {
         configuration.httpAdditionalHeaders = ["User-Agent": UIDevice.current.userAgent]
         #endif
         
-        self.urlSession = URLSession(configuration: configuration)
+        self.urlSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
     }
     
     @discardableResult
     public func perform<T: Codable>(_ repository: Repository, _ completion: @escaping (RequestResult<T>) -> Void) -> RequestTask? {
         let request = repository.createRequest()
         
-        guard let url = URL(string: "\(repository.domain.domain())\(request.path)") else {
+        guard let url = URL(string: "https://\(repository.domain.rawValue)\(request.path)") else {
             preconditionFailure("Invalid URL")
         }
         
-        return perform(url: url, method: request.method) { result in
+        return perform(url: url, method: request.method) { [self] result in
             switch result {
             case let .success(data):
                 do {
@@ -77,6 +80,10 @@ public struct RequestManager {
     }
     
     func perform(url: URL, method: RequestMethod = .get, _ completion: @escaping (RequestResult<Data>) -> Void) -> RequestTask? {
+        guard let urlSession = urlSession else {
+            preconditionFailure("Request manager not prepared")
+        }
+        
         log?.debug("Perform: %@ %@", method.rawValue, url.description)
         
         var request = URLRequest(url: url)
@@ -86,7 +93,7 @@ public struct RequestManager {
         log?.debug("-------> %@", request.stringCurl())
         #endif
         
-        let task = urlSession.dataTask(with: request) { data, response, error in
+        let task = urlSession.dataTask(with: request) { [self] data, response, error in
             guard let data = data,
                   let response = response as? HTTPURLResponse else {
                 if let error = error as NSError? {
