@@ -53,6 +53,14 @@ extension RequestPath: ExpressibleByStringInterpolation {
             
             path.append(value)
         }
+        
+        public mutating func appendInterpolation(_ value: [String]) {
+            guard let value = value.joined(separator: ",").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+                return
+            }
+            
+            path.append(value)
+        }
     }
     
     public init(stringInterpolation interpolation: StringInterpolation) {
