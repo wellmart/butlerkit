@@ -28,12 +28,6 @@ public struct RequestPath {
     let path: String
 }
 
-extension RequestPath: ExpressibleByStringLiteral {
-    public init(stringLiteral value: String) {
-        self.path = value
-    }
-}
-
 extension RequestPath: ExpressibleByStringInterpolation {
     public struct StringInterpolation: StringInterpolationProtocol {
         var path: String
@@ -54,16 +48,22 @@ extension RequestPath: ExpressibleByStringInterpolation {
             path.append(value)
         }
         
-        public mutating func appendInterpolation(_ value: [String]) {
-            guard let value = value.joined(separator: ",").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-                return
-            }
+        public mutating func appendInterpolation<T: CustomStringConvertible>(_ values: [T]) {
+            let values = values.map { $0.description }.joined(separator: ",")
             
-            path.append(value)
+            if let value = values.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+                path.append(value)
+            }
         }
     }
     
     public init(stringInterpolation interpolation: StringInterpolation) {
         self.path = interpolation.path
+    }
+}
+
+extension RequestPath: ExpressibleByStringLiteral {
+    public init(stringLiteral value: String) {
+        self.path = value
     }
 }
